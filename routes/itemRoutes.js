@@ -5,7 +5,6 @@ const Category = require("../models/categorySchema");
 const mongoose = require("mongoose");
 const verifyToken = require("./Authorization/verifyToken");
 
-
 /**
  * @swagger
  * /api/item:
@@ -74,7 +73,7 @@ router.post("/item", verifyToken, async (req, res) => {
     const savedItem = await newItem.save();
     res.status(201).json({ message: "Item created successfully", savedItem });
   } catch (err) {
-    console.log('shubha,sihosaid',err)
+    console.log("shubha,sihosaid", err);
     res.status(400).json({ message: err.message });
   }
 });
@@ -84,26 +83,71 @@ router.post("/item", verifyToken, async (req, res) => {
  * /api/items:
  *   get:
  *     summary: Get all items
- *     description: Retrieve a list of all items.
+ *     description: Retrieve a list of all items with pagination.
  *     tags: [Items]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: The page number to retrieve.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: The number of items per page.
  *     responses:
  *       200:
- *         description: A list of items
+ *         description: A list of items with pagination
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Item'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Items fetched successfully"
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Item'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 10
+ *                     totalItems:
+ *                       type: integer
+ *                       example: 100
  *       500:
  *         description: Server error
  */
+
 router.get("/items", verifyToken, async (req, res) => {
   try {
-    const item = await Item.find().populate("category");
-    res.status(200).json(item);
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+    const item = await Item.find().populate("category").skip(skip).limit(limit);
+    const totalItem = await Item.countDocuments("category");
+    res.status(200).json({
+      message: "Items fetched successfully",
+      item: item,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalItem / limit),
+        totalFood: totalItem,
+      },
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

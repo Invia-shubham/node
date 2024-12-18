@@ -75,27 +75,69 @@ router.post("/users", async (req, res) => {
  * /api/users:
  *   get:
  *     summary: Get all users
- *     description: Retrieve a list of all registered users.
+ *     description: Retrieve a list of all registered users with pagination.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: The page number to retrieve.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: The number of users per page.
  *     responses:
  *       200:
- *         description: List of users
+ *         description: A list of users with pagination information
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 5
+ *                     totalUsers:
+ *                       type: integer
+ *                       example: 50
  *       401:
  *         description: Unauthorized access
+ *       500:
+ *         description: Internal server error
  */
 
 router.get("/users", verifyToken, async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+    const users = await User.find().skip(skip).limit(limit);
+    const totalUser = await User.countDocuments();
+    res.status(200).json({
+      users: users,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalUser / limit),
+        totalUser: totalUser,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch users" });
   }

@@ -34,4 +34,5 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+// Middleware
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // This will serve your Swagger docs at /api-docs

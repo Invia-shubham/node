@@ -125,7 +125,7 @@ router.post("/food", verifyToken, async (req, res) => {
  * @swagger
  * /api/food:
  *   get:
- *     summary: Get food items with filters
+ *     summary: Get food items with filters and pagination
  *     tags: [Food]
  *     security:
  *       - bearerAuth: []
@@ -158,9 +158,23 @@ router.post("/food", verifyToken, async (req, res) => {
  *         schema:
  *           type: number
  *           example: 500
+ *       - name: page
+ *         in: query
+ *         description: Page number for pagination (defaults to 1)
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - name: limit
+ *         in: query
+ *         description: Number of items per page for pagination (defaults to 10)
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 10
  *     responses:
  *       200:
- *         description: Successfully fetched the list of food items based on provided filters
+ *         description: Successfully fetched the list of food items based on provided filters and pagination
  *         content:
  *           application/json:
  *             schema:
@@ -173,6 +187,22 @@ router.post("/food", verifyToken, async (req, res) => {
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Food'
+ *                 totalItems:
+ *                   type: integer
+ *                   description: Total number of food items matching the filters
+ *                   example: 100
+ *                 totalPages:
+ *                   type: integer
+ *                   description: Total number of pages based on pagination
+ *                   example: 10
+ *                 currentPage:
+ *                   type: integer
+ *                   description: Current page number
+ *                   example: 1
+ *                 perPage:
+ *                   type: integer
+ *                   description: Number of food items per page
+ *                   example: 10
  *       500:
  *         description: Internal Server Error
  *       400:
@@ -181,7 +211,14 @@ router.post("/food", verifyToken, async (req, res) => {
 
 router.get("/food", verifyToken, async (req, res) => {
   try {
-    const { category, isAvailable, minPrice, maxPrice } = req.query;
+    const {
+      category,
+      isAvailable,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 10,
+    } = req.query;
     const query = {};
 
     if (category) {
@@ -200,12 +237,19 @@ router.get("/food", verifyToken, async (req, res) => {
       if (!query.price) query.price = {};
       query.price.$lte = Number(maxPrice);
     }
+    const skip = (page - 1) * limit;
 
-    const foodItems = await Food.find(query);
+    const foodItems = await Food.find(query).skip(skip).limit(Number(limit));
+    const totalFood = await Food.countDocuments(query);
 
     res.status(200).json({
       message: "Food items fetched successfully",
       foodItems: foodItems,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalFood / limit),
+        totalFood: totalFood,
+      },
     });
   } catch (error) {
     console.error(error);
