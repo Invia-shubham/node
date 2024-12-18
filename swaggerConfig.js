@@ -4,13 +4,13 @@ const swaggerDefinition = {
   openapi: "3.0.0",
   info: {
     title: "NodeJS API",
-    version: "1.0.0",
+    version: "1.0.1",
     description: "This is the API documentation for the Node application",
   },
   servers: [
     {
       url: "https://node-q31r.onrender.com",
-      description: "Render server",
+      description: "Shubham Render server",
     },
   ],
   components: {
