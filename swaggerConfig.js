@@ -99,6 +99,74 @@ const swaggerDefinition = {
           },
         },
       },
+      Food: {
+        type: "object",
+        properties: {
+          name: {
+            type: "string",
+            description: "The name of the food item",
+            example: "Pizza",
+          },
+          description: {
+            type: "string",
+            description: "A description of the food item",
+            example: "A delicious cheese pizza",
+          },
+          price: {
+            type: "number",
+            description: "Price of the food item",
+            example: 9.99,
+          },
+          image: {
+            type: "string",
+            description: "URL for the food image",
+            example: "https://example.com/pizza.jpg",
+          },
+          category: {
+            type: "string",
+            description: "Food category",
+            enum: ["vegetarian", "non-vegetarian", "vegan", "dessert"],
+            example: "vegetarian",
+          },
+          ingredients: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+            description: "Ingredients of the food item",
+            example: ["Cheese", "Tomato", "Dough"],
+          },
+          isAvailable: {
+            type: "boolean",
+            description: "Availability of the food item",
+            example: true,
+          },
+          rating: {
+            type: "number",
+            description: "Rating of the food item",
+            minimum: 1,
+            maximum: 5,
+            example: 4,
+          },
+          servings: {
+            type: "number",
+            description: "Number of servings",
+            example: 2,
+          },
+          createdAt: {
+            type: "string",
+            format: "date-time",
+            description: "Creation timestamp",
+            example: "2024-12-18T12:00:00Z",
+          },
+          updatedAt: {
+            type: "string",
+            format: "date-time",
+            description: "Last updated timestamp",
+            example: "2024-12-19T12:00:00Z",
+          },
+        },
+      },
     },
     // Define responses that can be reused
     responses: {
