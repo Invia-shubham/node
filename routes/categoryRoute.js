@@ -1,11 +1,11 @@
 const express = require("express");
 const Category = require("../models/categorySchema");
 const router = express.Router();
+const verifyToken = require("./Authorization/verifyToken");
 
 
-router.post("/category", async (req, res) => {
+router.post("/category", verifyToken, async (req, res) => {
   const { categoryName } = req.body;
-
 
   const existingCategory = await Category.findOne({ categoryName });
   if (existingCategory) {
@@ -26,8 +26,7 @@ router.post("/category", async (req, res) => {
   }
 });
 
-
-router.get("/category", async (req, res) => {
+router.get("/category", verifyToken, async (req, res) => {
   try {
     const categories = await Category.find();
     res.status(200).json(categories);

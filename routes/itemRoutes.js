@@ -3,8 +3,9 @@ const router = express.Router();
 const Item = require("../models/item");
 const Category = require("../models/categorySchema");
 const mongoose = require("mongoose");
+const verifyToken = require("./Authorization/verifyToken");
 
-router.post("/item", async (req, res) => {
+router.post("/item", verifyToken, async (req, res) => {
   const { name, description, quantity, categoryId } = req.body;
 
   const category = await Category.findById(categoryId);
@@ -23,11 +24,12 @@ router.post("/item", async (req, res) => {
     const savedItem = await newItem.save();
     res.status(201).json({ message: "Item created successfully", savedItem });
   } catch (err) {
+    console.log('shubha,sihosaid',err)
     res.status(400).json({ message: err.message });
   }
 });
 
-router.get("/items", async (req, res) => {
+router.get("/items", verifyToken, async (req, res) => {
   try {
     const item = await Item.find().populate("category");
     res.status(200).json(item);
@@ -49,7 +51,7 @@ router.get("/item/:id", async (req, res) => {
   }
 });
 
-router.get("/items/category/:categoryId", async (req, res) => {
+router.get("/items/category/:categoryId", verifyToken, async (req, res) => {
   const { categoryId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(categoryId)) {
@@ -74,7 +76,7 @@ router.get("/items/category/:categoryId", async (req, res) => {
 });
 
 // Update Item by ID (U)
-router.put("/item/:id", async (req, res) => {
+router.put("/item/:id", verifyToken, async (req, res) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -86,7 +88,7 @@ router.put("/item/:id", async (req, res) => {
 });
 
 // Delete Item by ID (D)
-router.delete("/item/:id", async (req, res) => {
+router.delete("/item/:id", verifyToken, async (req, res) => {
   try {
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
     if (deletedItem) {
