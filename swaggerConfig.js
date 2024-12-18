@@ -4,7 +4,7 @@ const swaggerDefinition = {
   openapi: "3.0.0",
   info: {
     title: "NodeJS API",
-    version: "1.0.1",
+    version: "1.0.0",
     description: "This is the API documentation for the Node application",
   },
   servers: [
