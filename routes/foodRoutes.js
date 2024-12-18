@@ -12,7 +12,7 @@ const verifyToken = require("./Authorization/verifyToken");
 
 /**
  * @swagger
- * /food:
+ * /api/food:
  *   post:
  *     summary: Add a new food item
  *     tags: [Food]
@@ -123,7 +123,7 @@ router.post("/food", verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /food:
+ * /api/food:
  *   get:
  *     summary: Get food items with filters
  *     tags: [Food]
@@ -215,7 +215,7 @@ router.get("/food", verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /food/{id}:
+ * /api/food/{id}:
  *   put:
  *     summary: Update a food item by ID
  *     tags: [Food]
