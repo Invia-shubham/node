@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const itemRoutes = require('./routes/itemRoutes');
 const userRoutes = require('./routes/userRoutes'); // Assuming you have userRoutes defined
 const categoryRoutes = require('./routes/categoryRoute');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swaggerConfig');
+
 const uri = "mongodb+srv://new-user-31:BVjbKBhcu8puOKC3@cluster19986.4ktj0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster19986";
 
 // Create Express ap 
@@ -26,3 +29,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));  // This will serve your Swagger docs at /api-docs

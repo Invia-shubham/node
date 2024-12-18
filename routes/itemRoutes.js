@@ -5,6 +5,56 @@ const Category = require("../models/categorySchema");
 const mongoose = require("mongoose");
 const verifyToken = require("./Authorization/verifyToken");
 
+
+/**
+ * @swagger
+ * /api/item:
+ *   post:
+ *     summary: Create a new item
+ *     description: Creates a new item with the specified details.
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - categoryId
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the item
+ *               description:
+ *                 type: string
+ *                 description: The description of the item
+ *               quantity:
+ *                 type: number
+ *                 description: The quantity of the item
+ *               categoryId:
+ *                 type: string
+ *                 description: The category ID the item belongs to
+ *     responses:
+ *       201:
+ *         description: Item created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Item created successfully"
+ *                 savedItem:
+ *                   $ref: '#/components/schemas/Item'
+ *       400:
+ *         description: Invalid category ID or bad request
+ *       500:
+ *         description: Server error
+ */
 router.post("/item", verifyToken, async (req, res) => {
   const { name, description, quantity, categoryId } = req.body;
 
@@ -29,6 +79,27 @@ router.post("/item", verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/items:
+ *   get:
+ *     summary: Get all items
+ *     description: Retrieve a list of all items.
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of items
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Item'
+ *       500:
+ *         description: Server error
+ */
 router.get("/items", verifyToken, async (req, res) => {
   try {
     const item = await Item.find().populate("category");
@@ -38,6 +109,32 @@ router.get("/items", verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/item/{id}:
+ *   get:
+ *     summary: Get item by ID
+ *     description: Retrieve an item by its ID.
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the item
+ *     responses:
+ *       200:
+ *         description: The item details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Item'
+ *       404:
+ *         description: Item not found
+ *       500:
+ *         description: Server error
+ */
 router.get("/item/:id", async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
@@ -51,6 +148,36 @@ router.get("/item/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/items/category/{categoryId}:
+ *   get:
+ *     summary: Get items by category ID
+ *     description: Retrieve items belonging to a specific category.
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The category ID to filter items by
+ *     responses:
+ *       200:
+ *         description: List of items belonging to the category
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Item'
+ *       404:
+ *         description: No items found for this category
+ *       400:
+ *         description: Invalid category ID
+ *       500:
+ *         description: Server error
+ */
 router.get("/items/category/:categoryId", verifyToken, async (req, res) => {
   const { categoryId } = req.params;
 
@@ -76,6 +203,55 @@ router.get("/items/category/:categoryId", verifyToken, async (req, res) => {
 });
 
 // Update Item by ID (U)
+/**
+ * @swagger
+ * /api/item/{id}:
+ *   put:
+ *     summary: Update item by ID
+ *     description: Update an existing item by its ID.
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the item to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the item
+ *               description:
+ *                 type: string
+ *                 description: The description of the item
+ *               quantity:
+ *                 type: number
+ *                 description: The quantity of the item
+ *               categoryId:
+ *                 type: string
+ *                 description: The category ID to assign to the item
+ *     responses:
+ *       200:
+ *         description: The updated item details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Item'
+ *       404:
+ *         description: Item not found
+ *       400:
+ *         description: Invalid input or request body
+ *       500:
+ *         description: Server error
+ */
 router.put("/item/:id", verifyToken, async (req, res) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, {
@@ -88,6 +264,30 @@ router.put("/item/:id", verifyToken, async (req, res) => {
 });
 
 // Delete Item by ID (D)
+/**
+ * @swagger
+ * /api/item/{id}:
+ *   delete:
+ *     summary: Delete item by ID
+ *     description: Delete an item by its ID.
+ *     tags: [Items]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the item to delete
+ *     responses:
+ *       200:
+ *         description: Item deleted successfully
+ *       404:
+ *         description: Item not found
+ *       500:
+ *         description: Server error
+ */
 router.delete("/item/:id", verifyToken, async (req, res) => {
   try {
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
