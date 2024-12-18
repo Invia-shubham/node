@@ -22,3 +22,13 @@ Before you begin, ensure you have met the following requirements:
 1. Clone the repository:
    ```bash
    git clone https://github.com/Invia-shubham/node.git
+
+## Navigate to the project folder:
+
+   cd nodeJS_Project
+
+## Install dependencies:
+
+   npm install
+
+   
