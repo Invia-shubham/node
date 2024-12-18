@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/userSchema');
 const bcrypt = require('bcryptjs');
+const jwt=require('jsonwebtoken')
 
 const router = express.Router();
 
@@ -94,6 +95,39 @@ router.delete('/users/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete user' });
   }
+});
+
+const JWT_SECRET='key'
+ 
+router.post('/login',async(req,res)=>{
+const {email,password}=req.body;
+
+try {
+  const user=await User.findOne({email});
+  if(!user){
+    return res.status(400).json({message:'Invalid Credentials'});
+  }
+  const isMatch=await bcrypt.compare(password,user.password);
+  if(!isMatch){
+    return res.status(400).json({message:'Invalid Credentials'});
+  }
+
+  const token=jwt.sign({userId:user._id},JWT_SECRET,{expiresIn:'1h'});
+
+  return res.json({
+    message:'Login Successfully',
+    token,
+    user:{
+      userName:user.username,
+      email:user.email,
+      firstName:user.firstName,
+      lastName:user.lastName,
+    }
+  })
+} catch (error) {
+  console.error('Error during login',error);
+  return res.status(500).json({message:'Internal server error'})
+}
 });
 
 module.exports = router;
