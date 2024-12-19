@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs"); // Import fs module
+const fs = require("fs");
 const router = express.Router();
 
 // Ensure uploads directory exists
@@ -76,7 +76,7 @@ const upload = multer({
  *                   example: "1734596260039.png"
  *                 file:
  *                   type: string
- *                   example: "/Users/shubhamkumarsingh/Desktop/nodeJS_Project/routes/uploads/1734596260039.png"
+ *                   example: "/path/routes/uploads/1734596260039.png"
  *                 url:
  *                   type: string
  *                   example: "http://localhost:3000/uploads/1734596260039.png"
